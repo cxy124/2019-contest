@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style type="text/css">
+        *{
+            margin:0px;
+            padding: 0px;
+        }
+        #container{ 
+            position:relative; 
+        }
+        #theone{
+            margin:50px auto;
+            position:relative;
+            background-image: url("1.png");
+            width:600px;
+            height:450px;
+        }
+        .pos0{
+            width: 50px;
+            height:50px;
+            float:left;
+        }
+        .pos1{
+            width:50px;
+            height:50px;
+            float:left;
+            background:url(10.png) no-repeat;
+        }
+        .pos2{
+            width:50px;
+            height:50px;
+            float:left;
+            background:url(3.png) no-repeat;
+        }
+        .pos3{
+            width:50px;
+            height:50px;
+            float:left;
+            background:url(4.png) no-repeat;
+        }
+        .box{
+            width:50px;
+            height:50px;
+            position: absolute;
+            left:0px;
+            top:0px;
+            background:url(2.png) no-repeat;
+        }
+        .person{
+            width:50px;
+            height:50px;
+            position: absolute;
+            left:0px;
+            top:0px;
+            background:url(5.png) no-repeat;
+        }
+        #guan{
+            width:110px;
+            height:80px;
+            border:4px solid #1E90FF;
+            border-radius: 5px;
+            position:absolute;
+            right:20px;
+            top:30px;
+            box-shadow:4px 4px 4px #888888;
+            color:deeppink;
+            font-size:20px;
+            font-weight: bold;
+            line-height: 80px;
+            text-align: center;
+        }
+        #bt1{
+            right:10px;
+            bottom:110px;
+            width:130px;
+            height:50px;
+        }
+        #bt2{
+            right:10px;
+            bottom:30px;
+            width:130px;
+            height:50px;
+        }
+        button{
+            position: absolute;
+            background-color: coral;
+            color:white;
+            font-size: 20px;
+        }
+        #timer{
+            position: absolute;
+            right:0;
+            top:200px;
+            color:orangered
+        }
+        </style>
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js">
+    </script> 
+    <script>
+      
+    $(function () {
+               Game.init($("#container"));//初始化容器
+                });
+          var Game = {
+               gk: [{//关卡
+                   map: [//地图数据
+                   1,1,1,1,1,1,1,1,1,
+                    1,2,2,2,2,2,2,2,1,
+                    1,2,0,0,0,3,3,2,1,
+                    1,2,0,0,0,0,2,2,1,
+                    1,2,2,0,0,0,0,2,1,
+                    1,2,0,0,0,2,2,2,1,
+                    1,2,0,0,0,2,1,1,1,
+                    1,2,2,2,2,2,1,1,1,
+                    1,1,1,1,1,1,1,1,1,
+                  ],
+                  box: [//箱子位置
+                  {x:5,y:3},
+                    {x:3,y:5}
+                  ],
+                  person: {x:2,y:2}  //人物位置
+              },
+              {
+                  map: [//第二关
+                    1,1,1,1,1,1,1,1,1,
+                    1,1,2,2,2,2,2,1,1,
+                    1,2,2,0,0,0,2,1,1,
+                    1,2,0,0,0,0,2,2,1,
+                    1,2,2,0,0,0,0,2,1,
+                    1,1,2,0,0,0,2,2,1,
+                    1,2,2,3,3,0,2,1,1,
+                    1,2,2,2,2,2,2,1,1,
+                    1,1,1,1,1,1,1,1,1,
+                  ],
+                  box: [
+                    { x: 4, y: 3 },
+                    { x: 4, y: 4 }
+  
+                  ],
+                  person: { x: 3, y: 2 }
+              },
+              {
+                  map: [//第三关
+                    1,1,1,1,1,1,1,1,1,
+                    1,2,2,2,1,1,1,1,1,
+                    1,2,0,2,2,2,2,1,1,
+                    1,2,0,3,3,0,2,2,1,
+                    1,2,2,0,0,0,0,2,1,
+                    1,1,2,0,0,0,2,2,1,
+                    1,2,2,0,2,0,2,1,1,
+                    1,2,2,2,2,2,2,1,1,
+                    1,1,1,1,1,1,1,1,1,
+                  ],
+                  box: [
+                    { x: 4, y: 4 },
+                    { x: 3, y: 4 }
+  
+                  ],
+                  person: { x: 2, y: 2 }
+              }
+              ],
+              init: function (oParent) {//初始化函数
+                  this.oParent = oParent; 
+                  this.iNow = 0;//设置初始关卡为0
+                  this.createMap(this.iNow);//创建关卡对应的地图
+                  $("#bt1").bind('click',$.proxy(function(){
+                //绑定按钮，实现重玩功能
+                  this.createMap(this.iNow);
+               },this))
+              },
+              createMap: function (iNow) {
+                  //创建地图 很关键的是 将元素的样式下标和地图的坐标点关联
+                  this.oParent.empty(); //清空地图
+                  document.title = "第" + (iNow + 1) + "关";
+                  this.newJson = this.gk[iNow];
+                  //设置地图的宽度
+                  this.oParent.css("width", Math.sqrt(this.newJson.map.length) * 50);
+                  $.each(this.newJson.map, $.proxy(function (i, elem) {
+                    this.oParent.append('<div class="pos' + elem + '"></div>');
+                  }, this));//根据地图，在对应位置摆放对应元素
+                  //设置方框中的关数
+                  $("#guan").text("第"+(iNow + 1)+"关");
+                  //创建盒子与人物
+                  this.createBox();
+                  this.createPerson();
+              },
+              createBox: function () {//布局盒子所在的位置
+                  $.each(this.newJson.box, $.proxy(function (i, elem) {
+                      var oBox = $('<div class="box"></div>');
+                      oBox.css({ 'left': elem.x * 50, 'top': elem.y * 50 });
+                      this.oParent.append(oBox);
+                  }, this));
+              },
+              createPerson: function () {//布局人物所在的位置
+                  var oPerson = $('<div class="person"></div>');
+                  var pos = this.newJson.person;
+                  oPerson.css({ 'left': pos.x * 50, 'top': pos.y * 50 });
+                  oPerson.data('x', pos.x);
+                  oPerson.data('y', pos.y);
+                  this.oParent.append(oPerson);
+                  //创建人物的同时让他绑定键盘
+                  this.bindPerson(oPerson);
+              },
+              bindPerson: function (oPerson) {//绑定对人物←↑→↓操作
+                  $(document).keydown($.proxy(function (ev) {
+                      switch (ev.which) {
+                          case 37: //←
+                              this.movePerson(oPerson, { x: -1 });
+                              break;
+                          case 38: //↑
+                             this.movePerson(oPerson, { y: -1 });
+                              break;
+                         case 39: //→
+                             this.movePerson(oPerson, { x: 1 });
+                             break;
+                         case 40: //↓
+                             this.movePerson(oPerson, { y: 1 });
+                             break;
+                         default:
+                     }
+                 }, this));
+             },
+             movePerson: function (oP, opt) {//移动人物
+                 var xValue = opt.x || 0;
+                 //如果获取到了相应的x,y值，则取该值，否则取0
+                 var yValue = opt.y || 0;
+                var length = Math.sqrt(this.newJson.map.length);
+                var currentMapIndex = (oP.data('x') + xValue) + (oP.data('y') + yValue) * length;
+                //判断是否碰到墙，没有则执行操作
+                if (this.newJson.map[currentMapIndex] != 2) {
+                    oP.data('x', oP.data('x') + xValue);
+                    oP.data('y', oP.data('y') + yValue);
+                    oP.css({ "left": oP.data("x") * 50, "top": oP.data("y") * 50 });
+                     $(".box").each($.proxy(function (i, elem) {
+                        //当和箱子发生碰撞时遇到墙的判断
+                        if (this.pz(oP, $(elem)) && this.newJson.map[(oP.data('x') + xValue) + (oP.data('y') + yValue) * length] != 2) {
+                             $(elem).css({ 'left': (oP.data('x') + xValue) * 50, 'top': (oP.data('y') + yValue) * 50 });
+                             $(".box").each($.proxy(function (j, elem2) {
+                                 if (this.pz($(elem), $(elem2)) && elem != elem2) {
+                                     //当遇到箱子和箱子的的碰撞时同时前面也不是墙的判断
+                                     $(elem).css({ 'left': oP.data('x') * 50, 'top': oP.data('y') * 50 });
+                                     oP.data('x', oP.data('x') - xValue);
+                                     oP.data('y', oP.data('y') - yValue);
+                                     oP.css({ "left": oP.data("x") * 50, "top": oP.data("y") * 50 });
+                                 }
+                             }, this));
+                         }
+                         else if (this.pz(oP, $(elem))) {//和墙之间的碰撞
+                             oP.data('x', oP.data('x') - xValue);
+                             oP.data('y', oP.data('y') - yValue);
+                             oP.css({ "left": oP.data("x") * 50, "top": oP.data("y") * 50 });
+                         }
+                     }, this));
+                 }
+                 this.nextShow();
+             },
+            nextShow: function () {//判断是否通过
+                 var iNum = 0;
+                 $(".box").each($.proxy(function (i, elem) {
+                     $(".pos3").each($.proxy(function (j, elem1) {
+                         if (this.pz($(elem), $(elem1))) {
+                             iNum++;
+                         }
+                     }, this));
+                 }, this));
+                 if (iNum == this.newJson.box.length) {
+                     this.iNow++;
+                     alert("恭喜你通过啦！");
+                     $("#bt2").bind('click',$.proxy(function(){
+                  this.createMap(this.iNow);
+               },this))
+                 }
+             },
+             pz: function (obj1, obj2) { //碰撞检测
+                var L1 = obj1.offset().left;
+                 var R1 = obj1.offset().left + obj1.width();
+                 var T1 = obj1.offset().top;
+                 var B1 = obj1.offset().top + obj1.height();
+ 
+                 var L2 = obj2.offset().left;
+                 var R2 = obj2.offset().left + obj2.width();
+                 var T2 = obj2.offset().top;
+                 var B2 = obj2.offset().top + obj2.height();
+                 if (L1 >= R2 || B2 <= T1 || T2 >= B1 || R1 <= L2)
+                 { return false; }
+                 else
+               { return true; }
+             }
+        };
+        var maxtime = 5 * 60;  
+                    function CountDown() {
+                        if (maxtime >= 0) {
+                    minutes = Math.floor(maxtime / 60);
+                            seconds = Math.floor(maxtime % 60);
+                  msg = "距离结束还有" + minutes + "分" + seconds + "秒";
+                          document.all["timer"].innerHTML = msg;
+                          --maxtime;
+                       } else{
+                            clearInterval(timer);
+                            alert("时间到，游戏失败!请重新开始");
+                            Game.createMap(iNow);
+                        }
+                    }
+                    timer = setInterval("CountDown()", 1000);   
+    </script>
+</head>
+<body>
+    <div id="theone">
+    <div id="guan"></div>
+    <button id="bt1" >重玩</button>
+    <button id="bt2">下一关</button>
+    <div id="timer" ></div>
+    <div id="container"></div>
+    </div>  
+</body>
+</html>
